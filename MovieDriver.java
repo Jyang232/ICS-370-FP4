@@ -15,9 +15,9 @@ import java.sql.Statement;
  */
 
 public class MovieDriver {
-	
+
 	// Iteration 2
-	public static void selectAllMovies() { 
+	public static void selectAllMovies() {
 
 		Connection con = null;
 
@@ -49,9 +49,9 @@ public class MovieDriver {
 			}
 		}
 	}
-	
+
 	// Iteration 3
-	public static void createMovie(String native_name, String english_name, int year_made) { 
+	public static void createMovie(String native_name, String english_name, int year_made) {
 
 		Connection con = null;
 
@@ -85,9 +85,9 @@ public class MovieDriver {
 			}
 		}
 	}
-	
+
 	// Iteration 3
-	public static void readMovie() { 
+	public static void readMovie() {
 		Connection con = null;
 
 		try {
@@ -129,9 +129,9 @@ public class MovieDriver {
 			}
 		}
 	}
-	
-	//Iteration 3
-	public static void updateMovie(int id, String new_Native_Name, String new_English_Name, int new_Year_Made) { 
+
+	// Iteration 3
+	public static void updateMovie(int id, String new_Native_Name, String new_English_Name, int new_Year_Made) {
 
 		Connection con = null;
 
@@ -166,7 +166,7 @@ public class MovieDriver {
 			}
 		}
 	}
-	
+
 	// Iteration 3
 	public static void deleteMovie(int id) {
 
@@ -200,7 +200,8 @@ public class MovieDriver {
 			}
 		}
 	}
-	
+
+	// Iteration 4
 	public static boolean processMovieSongs() {
 		boolean state = false;
 		Connection con = null;
@@ -214,37 +215,58 @@ public class MovieDriver {
 			String movieStatement = "";
 			String movieStatement2 = "";
 			String movieStatement3 = "";
-			
+
 			PreparedStatement stmt7 = con.prepareStatement("Select * From ms_test_data WHERE execution_status =?");
 			stmt7.setString(1, "[1] M created [3] S created [5] MS created");
 			ResultSet myRs7 = stmt7.executeQuery();
-			while (myRs7.next()) {
-				String sql5 = "UPDATE ms_test_data SET execution_status=?";
+			System.out.println("Select 1: M created");
+			if (myRs7.next()) {
+				String sql5 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status = ? LIMIT 1";
 
 				PreparedStatement statement7 = con.prepareStatement(sql5);
 				statement7.setString(1, "[2] M ignored [4] S ignored [6] MS ignored");
+				statement7.setString(2, "[1] M created [3] S created [5] MS created");
 				int rowsUpdated = statement7.executeUpdate();
+				System.out.println("Select 1: M ignored");
+				System.exit(0);
 			}
 
-			PreparedStatement stmt6 = con.prepareStatement("SELECT * FROM ms_test_data WHERE execution_status=?");
+			PreparedStatement stmt8 = con.prepareStatement("Select * From ms_test_data WHERE execution_status =?");
+			stmt8.setString(1, "[2] M ignored [3] S created [5] MS created");
+			ResultSet myRs8 = stmt8.executeQuery();
+			System.out.println("select works");
+			if (myRs8.next()) {
+				String sql6 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status=? LIMIT 1";
+
+				PreparedStatement statement8 = con.prepareStatement(sql6);
+				statement8.setString(1, "[2] M ignored [4] S ignored [6] MS ignored");
+				statement8.setString(2, "[2] M ignored [3] S created [5] MS created");
+				int rowsUpdated3 = statement8.executeUpdate();
+				System.out.println("update works");
+				System.exit(0);
+			}
+
+			PreparedStatement stmt6 = con
+					.prepareStatement("SELECT * FROM ms_test_data WHERE execution_status=? LIMIT 1");
 			stmt6.setString(1, "to be processed");
 			ResultSet myRs = stmt6.executeQuery();
-			while (myRs.next()) {
+			if (myRs.next()) {
 				int id = myRs.getInt(1);
 				String native_name = myRs.getString(2);
 				int year = myRs.getInt(3);
 				String title = myRs.getString(4);
 				String status = myRs.getString(5);
 
-				PreparedStatement stmt = con.prepareStatement("Select * From Movies WHERE native_name =? AND year_made =?");
+				PreparedStatement stmt = con
+						.prepareStatement("Select * From Movies WHERE native_name =? AND year_made =?");
 				stmt.setString(1, native_name);
 				stmt.setInt(2, year);
 				ResultSet myRs2 = stmt.executeQuery();
 
 				if (myRs2.next()) {
 					System.out.println("M ignored");
-				}
-				else {
+					movieStatement = "[2] M ignored ";
+				} else {
 					String sql = "Insert INTO Movies (native_name, english_name, year_made) VALUES (?, ?, ?)";
 
 					PreparedStatement statement = con.prepareStatement(sql);
@@ -257,15 +279,14 @@ public class MovieDriver {
 						System.out.println("M created");
 					}
 				}
-				
+
 				PreparedStatement stmt2 = con.prepareStatement("Select * From Songs WHERE title=?");
 				stmt2.setString(1, title);
 				ResultSet myRs3 = stmt2.executeQuery();
 				if (myRs3.next()) {
 					movieStatement2 = "[4] S ignored ";
 					System.out.println("S ignored");
-				} 
-				else {
+				} else {
 					String sql2 = "Insert INTO Songs (title, lyrics, theme) VALUES (?, ?, ?)";
 
 					PreparedStatement statement2 = con.prepareStatement(sql2);
@@ -295,7 +316,8 @@ public class MovieDriver {
 						String song_title = myRs5.getString(2);
 						String lyrics2 = myRs5.getString(3);
 						String theme2 = myRs5.getString(4);
-						PreparedStatement stmt5 = con.prepareStatement("Select * From Movie_song WHERE movie_id=? AND song_id=?");
+						PreparedStatement stmt5 = con
+								.prepareStatement("Select * From Movie_song WHERE movie_id=? AND song_id=?");
 						stmt5.setInt(1, movie_id);
 						stmt5.setInt(2, song_id);
 						ResultSet myRs6 = stmt5.executeQuery();
@@ -308,18 +330,21 @@ public class MovieDriver {
 						if (rowsInserted3 > 0) {
 							movieStatement3 = "[5] MS created";
 							System.out.println("MS created");
+						} else {
+							movieStatement3 = "[6] MS ignored";
 						}
-						
+
 					}
 				}
-				
-				String sql4 = "UPDATE ms_test_data SET execution_status=?";
+
+				String sql4 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status=? LIMIT 1";
 
 				PreparedStatement statement4 = con.prepareStatement(sql4);
-				statement4.setString(1, "[1] M created [3] S created [5] MS created");
+				statement4.setString(1, movieStatement + movieStatement2 + movieStatement3);
+				statement4.setString(2, "to be processed");
 				int rowsUpdated2 = statement4.executeUpdate();
 			}
-			
+
 			con.close();
 			state = true;
 			return state;
@@ -343,6 +368,6 @@ public class MovieDriver {
 		// updateMovie(20120, "Wall-E", "Wall-E", 2009);
 		// deleteMovie(20120);
 		// readMovie();
-		 processMovieSongs();
+		processMovieSongs();
 	}
 }
