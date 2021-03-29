@@ -201,7 +201,7 @@ public class MovieDriver {
 		}
 	}
 
-	// Iteration 4
+	// Iteration 4 and 5
 	public static boolean processMovieSongs() {
 		boolean state = false;
 		Connection con = null;
@@ -220,45 +220,41 @@ public class MovieDriver {
 			stmt7.setString(1, "[1] M created [3] S created [5] MS created");
 			ResultSet myRs7 = stmt7.executeQuery();
 			System.out.println("Select 1: M created");
-			if (myRs7.next()) {
-				String sql5 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status = ? LIMIT 1";
+			while (myRs7.next()) {
+				String sql5 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status = ?";
 
 				PreparedStatement statement7 = con.prepareStatement(sql5);
 				statement7.setString(1, "[2] M ignored [4] S ignored [6] MS ignored");
 				statement7.setString(2, "[1] M created [3] S created [5] MS created");
 				int rowsUpdated = statement7.executeUpdate();
 				System.out.println("Select 1: M ignored");
-				System.exit(0);
 			}
 
 			PreparedStatement stmt8 = con.prepareStatement("Select * From ms_test_data WHERE execution_status =?");
 			stmt8.setString(1, "[2] M ignored [3] S created [5] MS created");
 			ResultSet myRs8 = stmt8.executeQuery();
 			System.out.println("select works");
-			if (myRs8.next()) {
-				String sql6 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status=? LIMIT 1";
+			while (myRs8.next()) {
+				String sql6 = "UPDATE ms_test_data SET execution_status=? WHERE execution_status=?";
 
 				PreparedStatement statement8 = con.prepareStatement(sql6);
 				statement8.setString(1, "[2] M ignored [4] S ignored [6] MS ignored");
 				statement8.setString(2, "[2] M ignored [3] S created [5] MS created");
 				int rowsUpdated3 = statement8.executeUpdate();
 				System.out.println("update works");
-				System.exit(0);
 			}
 
-			PreparedStatement stmt6 = con
-					.prepareStatement("SELECT * FROM ms_test_data WHERE execution_status=? LIMIT 1");
+			PreparedStatement stmt6 = con.prepareStatement("SELECT * FROM ms_test_data WHERE execution_status=?");
 			stmt6.setString(1, "to be processed");
 			ResultSet myRs = stmt6.executeQuery();
-			if (myRs.next()) {
+			while (myRs.next()) {
 				int id = myRs.getInt(1);
 				String native_name = myRs.getString(2);
 				int year = myRs.getInt(3);
 				String title = myRs.getString(4);
 				String status = myRs.getString(5);
 
-				PreparedStatement stmt = con
-						.prepareStatement("Select * From Movies WHERE native_name =? AND year_made =?");
+				PreparedStatement stmt = con.prepareStatement("Select * From Movies WHERE native_name =? AND year_made =?");
 				stmt.setString(1, native_name);
 				stmt.setInt(2, year);
 				ResultSet myRs2 = stmt.executeQuery();
@@ -316,8 +312,7 @@ public class MovieDriver {
 						String song_title = myRs5.getString(2);
 						String lyrics2 = myRs5.getString(3);
 						String theme2 = myRs5.getString(4);
-						PreparedStatement stmt5 = con
-								.prepareStatement("Select * From Movie_song WHERE movie_id=? AND song_id=?");
+						PreparedStatement stmt5 = con.prepareStatement("Select * From Movie_song WHERE movie_id=? AND song_id=?");
 						stmt5.setInt(1, movie_id);
 						stmt5.setInt(2, song_id);
 						ResultSet myRs6 = stmt5.executeQuery();
@@ -361,6 +356,7 @@ public class MovieDriver {
 			}
 		}
 	}
+	
 
 	public static void main(String args[]) {
 		// selectAllMovies();
@@ -368,6 +364,6 @@ public class MovieDriver {
 		// updateMovie(20120, "Wall-E", "Wall-E", 2009);
 		// deleteMovie(20120);
 		// readMovie();
-		processMovieSongs();
+		 processMovieSongs();
 	}
 }
